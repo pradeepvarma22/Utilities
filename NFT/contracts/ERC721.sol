@@ -7,6 +7,7 @@ contract ERC721 {
     //list of users having nft's
     mapping(address => uint256) internal _balances;
     mapping(uint256 => address) internal _owners;
+    mapping(uint256=> address) private _tokenApprovals;
     //1st address is the owner of NFT 2nd address is the operator[opensea] 3rd parameter is can we give access to operator true/false
     mapping(address=>(address=>bool)) private _operatorApprovals;
     //number of nfts assigned to owner
@@ -47,12 +48,38 @@ contract ERC721 {
     function isApprovedForAll(address owner,address operator) public view returns(bool){
         return _operatorApprovals[owner][operator];
     }
+    
+    /*
+        Approves another address to transfer the given token ID
+        The zero address indicates there is no approved address.
+        There can only be one approved address per token at a given time.
+        Approve function Can only be called by the token owner or an approved operator.
+        @param to address to be approved for the given token ID
+        @param tokenId uint256 ID of the token to be approved
+        MAP:_tokenApprovals
+    */
+    event Approval(address indexed _owner,address indexed _to,uint256 _tokenId);
+    function approve(address to,uint256 tokenId) public{
+        address owner = ownerOf(tokenId);
+        //tokenId nft can be send by only owner or opensea operator
+        require(msg.sender == owner || isApprovedForAll(owner,msg.sender), "Msg.sender is not the owner or an approved operator");
+        _tokenApprovals[tokenId] = to;
+        emit Approval(owner,to,tokenId);
+    }
+    
+    //gets the approved address for a single NFT
+    function getApproved() public view(uint256 tokenId) returns(address)
+    {
+        //token id exists or not ?
+        require(_owners[tokenId]!=address(0), "Token Id Does not exits");
+        return _tokenApprovals[tokenId];
+    }
 
     //event Transfer()
-    //event Approval()
     //function safeTransferFrom()
     //function safeTransferFrom()
     //function transferFrom()
-    //function approve()
-    //function getApproved()
+
+
+
 }
