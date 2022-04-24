@@ -7,7 +7,8 @@ contract ERC721 {
     //list of users having nft's
     mapping(address => uint256) internal _balances;
     mapping(uint256 => address) internal _owners;
-
+    //1st address is the owner of NFT 2nd address is the operator[opensea] 3rd parameter is can we give access to operator true/false
+    mapping(address=>(address=>bool)) private _operatorApprovals;
     //number of nfts assigned to owner
     function balanceOf(address owner) public view returns (uint256) {
         //owner is not a zero address
@@ -24,14 +25,34 @@ contract ERC721 {
         return owner;
     }
 
+    /*
+    setApprovalForAll:
+        When you sell NFTs on a Marketplace, you need to authorize this marketplace to transfer sold items from
+        your address to the buyer's address.
+        This is what SetApprovalForAll is used for: because you trust the marketplace, you "approve" it to sell
+        your NFTs (not all your NFTs, but the NFTs you own in the context of this contract).
+        The marketplace is what is called the "operator" in the context of this API.
+        MAP:_operatorApprovals: where operators are stored here
+     */
+    event ApprovalForAll(address indexed _ownerOfNFT,address indexed _operatorLikeOpenSea,bool _approved);
+    
+    function setApprovalForAll(address operator,bool approved) public{
+        //here msg.sender is the owner for NFT tokenId for temporary we are using msg.sender
+        //operator: opensea we want to give permissions or revoke permissions approved: true/false
+        _operatorApprovals[msg.sender][operator]=approved;
+        emit ApprovalForAll(msg.sender,operator,approved);
+    }
+
+    //check if address is an operator for an another address
+    function isApprovedForAll(address owner,address operator) public view returns(bool){
+        return _operatorApprovals[owner][operator];
+    }
+
     //event Transfer()
     //event Approval()
-    //event ApprovalForAll()
     //function safeTransferFrom()
     //function safeTransferFrom()
     //function transferFrom()
     //function approve()
-    //function setApprovalForAll()
     //function getApproved()
-    //function isApprovedForAll()
 }
