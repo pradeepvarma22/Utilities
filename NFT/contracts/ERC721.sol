@@ -75,10 +75,31 @@ contract ERC721 {
         return _tokenApprovals[tokenId];
     }
 
-    //event Transfer()
-    //function safeTransferFrom()
-    //function safeTransferFrom()
-    //function transferFrom()
+    event Transfer(address _from,address _to,uint256 tokenId);
+    //Transafers ownership of an NFT
+    function transferFrom(address from,address to,uint256 tokenId) public 
+    {
+        address owner = ownerOf(tokenId);
+        require(
+            msg.sender==owner||
+            getApproved(tokenId) == msg.sender ||
+            isApproved(owner,msg.sender),
+            "Msg.sender is not the owner or approved for transfer"
+        );
+        require(owner==from, "From Address is not the owner");
+        require(to!=address(0),"address is zero");
+        require(_owner(tokenId)!=address(0),"tokenId does not exits");
+        //remove previous owners by setting it to 0 address
+        approve(address(0),tokenId);
+        _balances[from] -=1;
+        _balances[to] +=1;
+        _owners[tokenId] = to;
+        emit Transfer(from,to,tokenId);
+    }
+
+    
+    // function safeTransferFrom()
+    // function safeTransferFrom()
 
 
 
